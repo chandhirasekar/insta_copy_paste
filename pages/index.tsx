@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Download, Camera, Link as LinkIcon, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Download, Camera, Link as LinkIcon, Loader2, AlertCircle, CheckCircle2, Play } from 'lucide-react';
 
 type ExtractData = {
   mediaUrl: string;
@@ -135,15 +135,52 @@ export default function Home() {
 
                 <div className="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/50 flex flex-col md:flex-row items-center gap-6">
                   {data.thumbnail ? (
-                    <div className="w-full md:w-32 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-slate-800 border border-slate-700">
-                      {data.type === 'video' && data.thumbnail === data.mediaUrl ? (
-                        <video src={data.thumbnail} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                    <div className="relative w-full md:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-800 border border-slate-700/50 shadow-md group cursor-pointer">
+                      {data.type === 'video' ? (
+                        <>
+                          <video
+                            src={`/api/proxy?url=${encodeURIComponent(data.mediaUrl)}`}
+                            poster={data.thumbnail && data.thumbnail !== data.mediaUrl ? `/api/proxy?url=${encodeURIComponent(data.thumbnail)}` : undefined}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            muted
+                            loop
+                            autoPlay
+                            playsInline
+                          />
+                          {/* Premium Overlay for Video Preview */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex flex-col justify-between p-2.5 transition-all duration-300 group-hover:from-slate-950/60">
+                            {/* Glimpse/Preview Badge */}
+                            <div className="flex items-center space-x-1.5 self-start bg-slate-950/65 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
+                              </span>
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-200">GLIMPSE</span>
+                            </div>
+                            {/* Glassmorphic Play Icon Overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-pink-500/20 group-hover:border-pink-500/30">
+                                <Play className="w-4 h-4 text-white fill-white/20 group-hover:fill-pink-500/30 group-hover:text-pink-400 transition-colors" />
+                              </div>
+                            </div>
+                          </div>
+                        </>
                       ) : (
-                        <img src={data.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
+                        <>
+                          <img
+                            src={`/api/proxy?url=${encodeURIComponent(data.thumbnail)}`}
+                            alt="Thumbnail"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          {/* Overlay for Image */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 justify-center">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-white bg-slate-950/60 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">IMAGE</span>
+                          </div>
+                        </>
                       )}
                     </div>
                   ) : (
-                    <div className="w-full md:w-32 h-32 rounded-xl flex-shrink-0 bg-slate-800 border border-slate-700 flex items-center justify-center">
+                    <div className="w-full md:w-32 h-32 rounded-2xl flex-shrink-0 bg-slate-800 border border-slate-700/50 flex items-center justify-center">
                       <Camera className="w-8 h-8 text-slate-600" />
                     </div>
                   )}
@@ -156,7 +193,7 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
-                        href={`/api/proxy?url=${encodeURIComponent(data.mediaUrl)}`}
+                        href={`/api/proxy?url=${encodeURIComponent(data.mediaUrl)}&download=true`}
                         className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-colors"
                         download
                       >
